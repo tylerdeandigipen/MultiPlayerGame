@@ -12,9 +12,11 @@ GameObject:
   - component: {fileID: 2578543898409071511}
   - component: {fileID: 8900699460547333892}
   - component: {fileID: 4315257710808386598}
+  - component: {fileID: 2669061580847104287}
   - component: {fileID: 1650666862232832575}
   - component: {fileID: 8037781650791038819}
   - component: {fileID: 6726517897870448027}
+  - component: {fileID: 1628789558240204624}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -100,6 +102,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &2669061580847104287
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7567179337605022423}
+  serializedVersion: 2
+  m_Mass: 0.35
+  m_Drag: 1
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
 --- !u!114 &1650666862232832575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,9 +173,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d6063ac57dda9149a19ca0063c70c42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 0.1
+  walkSpeed: 5
   defaultPositionRange: {x: 4, y: -4}
   forwardBackPosition:
     m_InternalValue: 0
   leftRightPosition:
     m_InternalValue: 0
+--- !u!114 &1628789558240204624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7567179337605022423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
