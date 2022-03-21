@@ -24,7 +24,7 @@ public class PlayerMovement : NetworkBehaviour
     {
         transform.position = new Vector3(Random.Range(defaultPositionRange.x, defaultPositionRange.y), 0, Random.Range(defaultPositionRange.x, defaultPositionRange.y));
     }
-    void Update()
+    void FixedUpdate()
     {
         if (IsServer)
         {
