@@ -5,48 +5,72 @@ using Unity.Netcode;
 using Unity.Netcode.Samples;
 
 [RequireComponent(typeof(NetworkObject))]
-[RequireComponent(typeof(ClientNetworkTransform))]
 public class PlayerMovement : NetworkBehaviour
 {
+    [SerializeField]
+    private float slowSpeed = .95f;
+
+    [SerializeField]
+    private float cameraZoffset = 0f;
+
     [SerializeField]
     private float walkSpeed = 3.5f;
 
     [SerializeField]
-    private Vector2 defaultPositionRange = new Vector2(4, -4);
-    Rigidbody rb;
+    private float mouseSensitivity = 3.5f;
 
+    CharacterController controller;
+    Rigidbody rb;
+    Camera camera_;
+    float xRot = 0f;
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        //rb = GetComponent<Rigidbody>();
     }
     void Start()
     {
+        controller = this.GetComponent<CharacterController>();
+        Cursor.lockState = CursorLockMode.Locked;
         if (IsOwner)
         {
+            camera_ = FindObjectOfType<Camera>();
             transform.position = new Vector3(0, 0, 0);
+            parentCamera();
         }
     }
-    void FixedUpdate()
+
+    private void Update()
     {
         if (IsClient && IsOwner)
         {
             ClientInput();
+            cameraControl();
         }
     }
     private void ClientInput()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        if (vertical > 0 || vertical < 0)
-        {
-            Debug.Log("BBBBBBBBBB");
-            rb.AddForce(vertical > 0 ? Vector3.forward * walkSpeed : Vector3.back * walkSpeed);
-        }
-        if (horizontal > 0 || horizontal < 0)
-        {
-            Debug.Log("AAAAAAAAAAA");
-            rb.AddForce(horizontal > 0 ? Vector3.right * walkSpeed : Vector3.left * walkSpeed);
-        }
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
 
+        Vector3 move = transform.right * x + transform.forward * z;
+
+        controller.Move(move * walkSpeed * Time.deltaTime);
     }
+    private void parentCamera()
+    {
+        camera_.transform.parent = transform;
+        camera_.transform.position = new Vector3(transform.position.x, transform.position.y + cameraZoffset, transform.position.z);
+    }
+    private void cameraControl()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        xRot -= mouseY;
+        xRot = Mathf.Clamp(xRot, -90, 90);
+
+        camera_.transform.localRotation = Quaternion.Euler(xRot, 0, 0);
+        transform.Rotate(Vector3.up * mouseX);
+    }
+
 }
