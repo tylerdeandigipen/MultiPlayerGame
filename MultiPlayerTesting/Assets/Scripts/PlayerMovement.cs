@@ -14,11 +14,6 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField]
     private Vector2 defaultPositionRange = new Vector2(4, -4);
     Rigidbody rb;
-    [SerializeField]
-    private NetworkVariable<float> xCord = new NetworkVariable<float>();
-
-    [SerializeField]
-    private NetworkVariable<float> zCord = new NetworkVariable<float>();
 
     private void Awake()
     {
@@ -28,7 +23,7 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (IsOwner)
         {
-            transform.position = new Vector3(0,0,0);
+            transform.position = new Vector3(0, 0, 0);
         }
     }
     void FixedUpdate()
@@ -43,10 +38,15 @@ public class PlayerMovement : NetworkBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
         if (vertical > 0 || vertical < 0)
+        {
+            Debug.Log("BBBBBBBBBB");
             rb.AddForce(vertical > 0 ? Vector3.forward * walkSpeed : Vector3.back * walkSpeed);
+        }
         if (horizontal > 0 || horizontal < 0)
+        {
+            Debug.Log("AAAAAAAAAAA");
             rb.AddForce(horizontal > 0 ? Vector3.right * walkSpeed : Vector3.left * walkSpeed);
-        zCord.Value = this.transform.position.z;
-        xCord.Value = this.transform.position.x;
+        }
+
     }
 }
