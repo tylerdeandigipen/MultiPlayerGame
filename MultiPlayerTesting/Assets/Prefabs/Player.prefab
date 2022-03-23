@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: ffe24f474c942f7428de50c7e786a39c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -133,9 +133,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraZoffset: 1
   walkSpeed: 10
+  runSpeed: 15
   mouseSensitivity: 1000
   jumpHeight: 3
   groundDistance: 0.4
+  groundMagnet: 2
   groundCheck: {fileID: 9080569663515807091}
   groundMask:
     serializedVersion: 2

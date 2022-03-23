@@ -9,15 +9,17 @@ public class PlayerMovement : NetworkBehaviour
 {
     [SerializeField]
     private float cameraZoffset = 0f;
-
     [SerializeField]
-    private float walkSpeed = 3.5f;
-
+    private float walkSpeed = 10f;
     [SerializeField]
-    private float mouseSensitivity = 3.5f;
+    private float runSpeed = 15f;
+    [SerializeField]
+    private float mouseSensitivity = 1000f;
 
+    float walkingSpeed = 0;
     public float jumpHeight = 3f;
     public float groundDistance = 0.4f;
+    public float groundMagnet = 2;
     public GameObject groundCheck;
     public LayerMask groundMask;
     CharacterController controller;
@@ -32,6 +34,7 @@ public class PlayerMovement : NetworkBehaviour
     }
     void Start()
     {
+        walkingSpeed = walkSpeed;
         controller = this.GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         if (IsOwner)
@@ -61,7 +64,16 @@ public class PlayerMovement : NetworkBehaviour
 
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            velocity.y = Mathf.Sqrt(jumpHeight * -groundMagnet * gravity);
+        }
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            walkSpeed = runSpeed;
+        }
+        else
+        {
+            walkSpeed = walkingSpeed;
         }
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
