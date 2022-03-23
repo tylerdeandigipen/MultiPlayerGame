@@ -140,7 +140,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 8
-  gravity: -19.6
+  gravity: -29.4
   velocity: {x: 0, y: 0, z: 0}
   isGrounded: 0
 --- !u!114 &2159785271893077339
