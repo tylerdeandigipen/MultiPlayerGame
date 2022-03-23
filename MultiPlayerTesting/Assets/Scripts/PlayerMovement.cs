@@ -8,9 +8,6 @@ using Unity.Netcode.Samples;
 public class PlayerMovement : NetworkBehaviour
 {
     [SerializeField]
-    private float slowSpeed = .95f;
-
-    [SerializeField]
     private float cameraZoffset = 0f;
 
     [SerializeField]
@@ -19,9 +16,15 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField]
     private float mouseSensitivity = 3.5f;
 
+    public float jumpHeight = 3f;
+    public float groundDistance = 0.4f;
+    public GameObject groundCheck;
+    public LayerMask groundMask;
     CharacterController controller;
-    Rigidbody rb;
+    public float gravity = -9.8f;
+    public Vector3 velocity;
     Camera camera_;
+    public bool isGrounded = false;
     float xRot = 0f;
     private void Awake()
     {
@@ -49,12 +52,28 @@ public class PlayerMovement : NetworkBehaviour
     }
     private void ClientInput()
     {
+        isGrounded = Physics.CheckSphere(groundCheck.transform.position, groundDistance, groundMask);
+
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
+
+        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
         Vector3 move = transform.right * x + transform.forward * z;
 
         controller.Move(move * walkSpeed * Time.deltaTime);
+
+        velocity.y += gravity * Time.deltaTime;
+
+        controller.Move(velocity * Time.deltaTime);
+        
     }
     private void parentCamera()
     {

@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
     private TextMeshProUGUI playersInGameText;
     bool isHosting = false;
     public PlayersManager playerManager;
+    public GameObject buttonsUI;
     private void Awake()
     {
         Cursor.visible = true;
@@ -32,6 +33,7 @@ public class UIManager : MonoBehaviour
         {
             isHosting = true;
         }
+
     }
     private void Start()
     {
@@ -41,6 +43,7 @@ public class UIManager : MonoBehaviour
             if (NetworkManager.Singleton.StartHost())
             {
                 Debug.Log("Host started");
+                buttonsUI.SetActive(false);
             }
             else
             {
@@ -52,6 +55,7 @@ public class UIManager : MonoBehaviour
             if (NetworkManager.Singleton.StartServer())
             {
                 Debug.Log("Server started");
+                buttonsUI.SetActive(false);
             }
             else
             {
@@ -63,6 +67,7 @@ public class UIManager : MonoBehaviour
             if (NetworkManager.Singleton.StartClient())
             {
                 Debug.Log("Client started");
+                buttonsUI.SetActive(false);
             }
             else
             {
