@@ -132,12 +132,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraZoffset: 1
-<<<<<<< Updated upstream
   walkSpeed: 10
   runSpeed: 15
-=======
-  walkSpeed: 15
->>>>>>> Stashed changes
   mouseSensitivity: 1000
   jumpHeight: 3
   groundDistance: 0.4
