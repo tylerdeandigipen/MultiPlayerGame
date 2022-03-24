@@ -29,6 +29,7 @@ public class PlayerMovement : NetworkBehaviour
     Vector3 spawnPoint; 
     public bool isGrounded = false;
     float xRot = 0f;
+    private Transform playerTransform;
     private void Awake()
     {
         //rb = GetComponent<Rigidbody>();
