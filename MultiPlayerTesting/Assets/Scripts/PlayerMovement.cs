@@ -26,6 +26,7 @@ public class PlayerMovement : NetworkBehaviour
     public float gravity = -9.8f;
     public Vector3 velocity;
     Camera camera_;
+    Vector3 spawnPoint; 
     public bool isGrounded = false;
     float xRot = 0f;
     private void Awake()
@@ -34,6 +35,7 @@ public class PlayerMovement : NetworkBehaviour
     }
     void Start()
     {
+        spawnPoint = transform.position;
         walkingSpeed = walkSpeed;
         controller = this.GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
@@ -85,7 +87,11 @@ public class PlayerMovement : NetworkBehaviour
         velocity.y += gravity * Time.deltaTime;
 
         controller.Move(velocity * Time.deltaTime);
-        
+
+        if (transform.position.y < -25)
+        {
+            transform.position = spawnPoint;
+        }
     }
     private void parentCamera()
     {
