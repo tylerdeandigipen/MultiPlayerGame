@@ -208,7 +208,7 @@ MonoBehaviour:
     m_Bits: 64
   damage: 10
   range: 100
-  fireRate: 1
+  fireRate: 0.25
 --- !u!1 &9080569663515807091
 GameObject:
   m_ObjectHideFlags: 0
