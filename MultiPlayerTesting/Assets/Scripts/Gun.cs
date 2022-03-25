@@ -13,6 +13,8 @@ public class Gun : NetworkBehaviour
     [SerializeField]
     float fireRate = 3f;
     float timer = 0f;
+    [SerializeField]
+    ParticleSystem hitEffects;
     Camera cam;
 
     private void Start()
@@ -39,9 +41,13 @@ public class Gun : NetworkBehaviour
         Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, range, EnemyLayer);
         if (hit.collider != null)
         {
-            Debug.Log("hit");
-            EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
-            enemyHealthScript.takeDamage(damage);
+            Instantiate(hitEffects, hit.point, Quaternion.LookRotation(hit.normal));
+            if (hit.collider.gameObject.layer == 6)
+            {
+                Debug.Log("hit");
+                EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
+                enemyHealthScript.takeDamage(damage);
+            }
         }
     }
 }
