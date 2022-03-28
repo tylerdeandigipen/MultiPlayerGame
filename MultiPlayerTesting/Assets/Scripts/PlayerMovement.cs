@@ -28,8 +28,10 @@ public class PlayerMovement : NetworkBehaviour
     Camera camera_;
     Vector3 spawnPoint; 
     public bool isGrounded = false;
-    float xRot = 0f;
+    float yRot = 0f;
     private Transform playerTransform;
+    float currentRecoilX = 0f;
+    float currentRecoilY = 0f;
     private void Awake()
     {
         //rb = GetComponent<Rigidbody>();
@@ -104,11 +106,20 @@ public class PlayerMovement : NetworkBehaviour
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        xRot -= mouseY;
-        xRot = Mathf.Clamp(xRot, -90, 90);
+        yRot -= mouseY;
+        yRot += currentRecoilY;
+        yRot = Mathf.Clamp(yRot, -90, 90);
 
-        camera_.transform.localRotation = Quaternion.Euler(xRot, 0, 0);
-        transform.Rotate(Vector3.up * mouseX);
+        transform.Rotate(Vector3.up * (mouseX + currentRecoilX));        
+        camera_.transform.localRotation = Quaternion.Euler(yRot, 0, 0);
+        currentRecoilY = 0;
+        currentRecoilX = 0f;
+    }
+
+    public void RecoilMath(float recoilAmmountX, float recoilAmmountY, float timePressed, float maxRecoilTime, float xRecoilDir, float yRecoilDir)
+    {
+        currentRecoilX = xRecoilDir * Mathf.Abs((Random.value - .5f) / 2) * recoilAmmountX;
+        currentRecoilY = yRecoilDir * Mathf.Abs(((Random.value) / 2) * recoilAmmountY * (timePressed >= maxRecoilTime ? recoilAmmountY / 4 : recoilAmmountY));
     }
 
 }

@@ -208,8 +208,15 @@ MonoBehaviour:
     m_Bits: 91
   damage: 10
   range: 100
-  fireRate: 0.25
+  fireRate: 0.15
+  maxRecoilTime: 4
+  recoilY: 1.2
+  recoilX: 0.6
+  yRecoilDir: -1
+  xRecoilDir: -1
   hitEffects: {fileID: 7051963422759471796, guid: a7e4db11f4056ca4f98a674c9ef939d0, type: 3}
+  bulletDecal: {fileID: 7950715922474084321, guid: ce02b9acddf3f9749a2f8e66d9aa1689, type: 3}
+  bloodSplatter: {fileID: 5219561878245848467, guid: 89ede5b012de0844abbec95c9f05a341, type: 3}
 --- !u!1 &9080569663515807091
 GameObject:
   m_ObjectHideFlags: 0
