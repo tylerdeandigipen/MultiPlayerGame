@@ -206,6 +206,8 @@ MonoBehaviour:
   EnemyLayer:
     serializedVersion: 2
     m_Bits: 91
+  maxAmmo: 24
+  reloadSpeed: 1
   damage: 10
   range: 100
   fireRate: 0.15
@@ -217,6 +219,7 @@ MonoBehaviour:
   hitEffects: {fileID: 7051963422759471796, guid: a7e4db11f4056ca4f98a674c9ef939d0, type: 3}
   bulletDecal: {fileID: 7950715922474084321, guid: ce02b9acddf3f9749a2f8e66d9aa1689, type: 3}
   bloodSplatter: {fileID: 5219561878245848467, guid: 89ede5b012de0844abbec95c9f05a341, type: 3}
+  ammoCounter: {fileID: 0}
 --- !u!1 &9080569663515807091
 GameObject:
   m_ObjectHideFlags: 0
