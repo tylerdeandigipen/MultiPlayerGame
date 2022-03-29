@@ -36,8 +36,11 @@ public class Gun : NetworkBehaviour
     GameObject bulletDecal;
     [SerializeField]
     GameObject bloodSplatter;
-    [SerializeField]
     private TextMeshProUGUI ammoCounter;
+    [SerializeField]
+    private TrailRenderer trailRenderer;
+    [SerializeField]
+    private GameObject bulletSpawnPoint;
     Camera cam;
     PlayerMovement plMove;
     float timePressed;
@@ -111,21 +114,47 @@ public class Gun : NetworkBehaviour
         currentAmmo -= 1;
         RaycastHit hit;
         Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, range, EnemyLayer);
-        plMove.RecoilMath(recoilX, recoilY, timePressed, maxRecoilTime, xRecoilDir, yRecoilDir);
+        plMove.RecoilMath(recoilX, recoilY, timePressed, maxRecoilTime, xRecoilDir, yRecoilDir);        
         if (hit.collider != null)
         {
+            TrailRenderer trail = Instantiate(trailRenderer, bulletSpawnPoint.transform.position, Quaternion.identity);
             if (hit.collider.gameObject.layer == 6)
             {
-                Debug.Log("hit");
-                Instantiate(bloodSplatter, hit.point, Quaternion.LookRotation(hit.normal));
+                StartCoroutine(SpawnTrail(trail, hit));
                 EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
                 enemyHealthScript.takeDamage(damage);
             }
             else 
             {
-                Instantiate(hitEffects, hit.point, Quaternion.LookRotation(hit.normal));
-                Instantiate(bulletDecal, hit.point + new Vector3(hit.normal.x * .01f, hit.normal.y * .01f, hit.normal.z * .01f), Quaternion.LookRotation(-hit.normal));
+                StartCoroutine(SpawnTrail(trail, hit));
+                //Instantiate(hitEffects, hit.point, Quaternion.LookRotation(hit.normal));
+                //Instantiate(bulletDecal, hit.point + new Vector3(hit.normal.x * .01f, hit.normal.y * .01f, hit.normal.z * .01f), Quaternion.LookRotation(-hit.normal));
             }
         }        
+    }
+
+    private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit)
+    {
+        float time = 0;
+        Vector3 startPosition = trail.transform.position;
+
+        while (time < .5)
+        {
+            trail.transform.position = Vector3.Lerp(startPosition, Hit.point, time);
+            time += Time.deltaTime / trail.time;
+            yield return null;
+        }
+        trail.transform.position = Hit.point;
+        if (Hit.collider.gameObject.layer == 6)
+        {
+            Instantiate(bloodSplatter, Hit.point, Quaternion.LookRotation(Hit.normal));
+        }
+        else
+        {
+            Instantiate(hitEffects, Hit.point, Quaternion.LookRotation(Hit.normal));
+            Instantiate(bulletDecal, Hit.point + new Vector3(Hit.normal.x * .01f, Hit.normal.y * .01f, Hit.normal.z * .01f), Quaternion.LookRotation(-Hit.normal));
+        }
+
+        Destroy(trail.gameObject, trail.time);
     }
 }
