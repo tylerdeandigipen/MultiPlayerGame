@@ -6,6 +6,8 @@ using TMPro;
 public class Gun : NetworkBehaviour
 {
     [SerializeField]
+    bool isAuto = true;
+    [SerializeField]
     LayerMask EnemyLayer;
     [SerializeField]
     int maxAmmo;
@@ -55,19 +57,36 @@ public class Gun : NetworkBehaviour
         if (IsClient && IsOwner)
         {
             ammoCounter.text = $"{currentAmmo}/{maxAmmo}";
-            if (Input.GetKey(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0)
+            if (isAuto == true)
             {
-                timer = 0f;
-                timePressed += Time.deltaTime;
-                timePressed = timePressed >= maxRecoilTime ? maxRecoilTime : timePressed;
-                Shoot();
+                if (Input.GetKey(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0)
+                {
+                    timer = 0f;
+                    timePressed += Time.deltaTime;
+                    timePressed = timePressed >= maxRecoilTime ? maxRecoilTime : timePressed;
+                    Shoot();
+                }
+                else
+                {
+                    timer += Time.deltaTime;
+                    timePressed = 0;
+                }
             }
-            else
+            else if (isAuto == false)
             {
-                timer += Time.deltaTime;
-                timePressed = 0;
+                if (Input.GetKeyDown(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0)
+                {
+                    timer = 0f;
+                    timePressed += Time.deltaTime;
+                    timePressed = timePressed >= maxRecoilTime ? maxRecoilTime : timePressed;
+                    Shoot();
+                }
+                else
+                {
+                    timer += Time.deltaTime;
+                    timePressed = 0;
+                }
             }
-
             if (Input.GetKeyDown(KeyCode.R) && currentAmmo != maxAmmo && isReloading != true)
             {
                 isReloading = true;
