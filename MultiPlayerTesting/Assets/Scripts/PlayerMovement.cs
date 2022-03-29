@@ -14,7 +14,7 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField]
     private float runSpeed = 15f;
     [SerializeField]
-    private float mouseSensitivity = 1000f;
+    private float mouseSensitivity = 1000f;    
 
     float walkingSpeed = 0;
     public float jumpHeight = 3f;
@@ -32,6 +32,7 @@ public class PlayerMovement : NetworkBehaviour
     private Transform playerTransform;
     float currentRecoilX = 0f;
     float currentRecoilY = 0f;
+    public GameObject defaultShootPos;
     private void Awake()
     {
         //rb = GetComponent<Rigidbody>();
