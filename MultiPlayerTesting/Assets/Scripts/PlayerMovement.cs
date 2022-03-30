@@ -7,41 +7,79 @@ using Unity.Netcode.Samples;
 [RequireComponent(typeof(NetworkObject))]
 public class PlayerMovement : NetworkBehaviour
 {
+    [Header("Camera")]
     [SerializeField]
     private float cameraZoffset = 0f;
+    [SerializeField]
+    private float mouseSensitivity = 1000f;
+    Camera camera_;
+
+    [Header("Walk Speeds")]
     [SerializeField]
     private float walkSpeed = 10f;
     [SerializeField]
     private float runSpeed = 15f;
-    [SerializeField]
-    private float mouseSensitivity = 1000f;    
-
     float walkingSpeed = 0;
-    public float jumpHeight = 3f;
-    public float groundDistance = 0.4f;
-    public float groundMagnet = 2;
-    public GameObject groundCheck;
-    public LayerMask groundMask;
-    CharacterController controller;
-    public float gravity = -9.8f;
-    public Vector3 velocity;
-    Camera camera_;
-    Vector3 spawnPoint; 
-    public bool isGrounded = false;
-    float yRot = 0f;
+
+    [Header("Ground")]
+    [SerializeField]
+    private GameObject groundCheck;
+    [SerializeField]
+    private LayerMask groundMask;
+    [SerializeField]
+    private float groundDrag = 1f;
+    [SerializeField]
+    private float groundDistance = 0.4f;
+    bool isGrounded = false;
+
+    [Header("Jumping")]
+    [SerializeField]
+    private float airMultiplier = .4f;
+    [SerializeField]
+    private float jumpHeight = 3f;
+
+    [Header("Crouching")]
+    [SerializeField]
+    private float crouchScale = .5f;
+    [SerializeField]
+    private float crouchSpeed = 7f;
+    float scale;
+    bool isCrouching = false;
+
+    [Header("Slopes")]
+    [SerializeField]
+    private float maxSlopeAngle;
+    [SerializeField]
+    private float slopeMagnet;
+    private RaycastHit slopeHit;
+    [SerializeField]
+    bool onSlope;
+    float angle;
+    bool exitSlope = false;
+
+    [Header("Guns")]
+    [SerializeField]
+    public GameObject defaultShootPos;
+
+    //Hidden Player Atribuites
     private Transform playerTransform;
+    Vector3 velocity;
+    Vector3 spawnPoint; 
+    float yRot = 0f;
     float currentRecoilX = 0f;
     float currentRecoilY = 0f;
-    public GameObject defaultShootPos;
+    Rigidbody rb;
+
     private void Awake()
     {
         //rb = GetComponent<Rigidbody>();
     }
     void Start()
     {
+        scale = transform.localScale.y;
+        rb = this.GetComponent<Rigidbody>();
         spawnPoint = transform.position;
         walkingSpeed = walkSpeed;
-        controller = this.GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         if (IsOwner)
         {
@@ -61,37 +99,97 @@ public class PlayerMovement : NetworkBehaviour
     }
     private void ClientInput()
     {
+        //ground check
         isGrounded = Physics.CheckSphere(groundCheck.transform.position, groundDistance, groundMask);
-
-        if (isGrounded && velocity.y < 0)
+        if (isGrounded)
         {
-            velocity.y = -2f;
+            rb.drag = groundDrag;
+            exitSlope = false;
         }
-
+        else
+            rb.drag = 0f;
+        //MovementBinds
+        if (isGrounded && Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            isCrouching = true;
+            transform.localScale = new Vector3(transform.localScale.x, crouchScale, transform.localScale.z);
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+            walkSpeed = crouchSpeed;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl) && isCrouching == true)
+        {
+            isCrouching = false;
+            walkSpeed = walkingSpeed;
+            transform.localScale = new Vector3(transform.localScale.x, scale, transform.localScale.z);
+        }
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -groundMagnet * gravity);
+            exitSlope = true;
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            rb.AddForce(transform.up * jumpHeight, ForceMode.Impulse); 
         }
-
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && isCrouching != true)
         {
             walkSpeed = runSpeed;
         }
-        else
+        else if (isCrouching != true)
         {
             walkSpeed = walkingSpeed;
         }
+        //movement
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
+        rb.useGravity = !onSlope;
+        Vector3 moveDirection = transform.forward * z + transform.right * x;
+        if (isGrounded && onSlope == true && !exitSlope)
+        {
+            rb.drag = groundDrag;
+            rb.AddForce(Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized * walkSpeed * 20f, ForceMode.Force);
 
-        Vector3 move = transform.right * x + transform.forward * z;
+            if (rb.velocity.y > 0)
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+        }
+        else if (isGrounded == true && onSlope == false)
+        {
+            rb.drag = groundDrag;
+            rb.AddForce(moveDirection * walkSpeed * 10f, ForceMode.Force);
+        }
+        else
+        {
+            rb.drag = 0f;
+            rb.AddForce(moveDirection * walkSpeed * 10f * airMultiplier, ForceMode.Force);
+        }
 
-        controller.Move(move * walkSpeed * Time.deltaTime);
+        //check for slope GET THIS RAYCAST TO WORK FOR SLOPE THINGS TO HAPPEN
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, transform.localScale.y * .5f + .3f, 7))
+        {
+            Debug.DrawRay(transform.position, Vector3.down, Color.red, transform.localScale.y * .5f + .3f);
+            angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            if (angle < maxSlopeAngle && angle != 0)
+                onSlope = true;
+            else
+                onSlope = false;                
+        }
+        //limit speed
+        //limit on slopes
+        if (onSlope && !exitSlope)
+        {
+            if (rb.velocity.magnitude > walkSpeed)
+                rb.velocity = rb.velocity.normalized * walkSpeed;
+        }
+        //limit mid air or on ground
+        else
+        {
+            Vector3 currentSpeed = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        velocity.y += gravity * Time.deltaTime;
-
-        controller.Move(velocity * Time.deltaTime);
-
+            if (currentSpeed.magnitude > walkSpeed)
+            {
+                Vector3 limitedSpeed = currentSpeed.normalized * walkSpeed;
+                rb.velocity = new Vector3(limitedSpeed.x, rb.velocity.y, limitedSpeed.z);
+            }
+        } 
+        
+        //reset player
         if (transform.position.y < -25)
         {
             transform.position = spawnPoint;

@@ -64,7 +64,7 @@ public class Gun : NetworkBehaviour
             ammoCounter.text = $"{currentAmmo}/{maxAmmo}";
             if (isAuto == true)
             {
-                if (Input.GetKey(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0)
+                if (Input.GetKey(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0 && isReloading == false)
                 {
                     timer = 0f;
                     timePressed += Time.deltaTime;
@@ -79,7 +79,7 @@ public class Gun : NetworkBehaviour
             }
             else if (isAuto == false)
             {
-                if (Input.GetKeyDown(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0)
+                if (Input.GetKeyDown(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0 && isReloading == false)
                 {
                     timer = 0f;
                     timePressed += Time.deltaTime;
