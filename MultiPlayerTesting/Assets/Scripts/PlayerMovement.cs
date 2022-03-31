@@ -51,10 +51,10 @@ public class PlayerMovement : NetworkBehaviour
     private float maxSlopeAngle;
     [SerializeField]
     private float slopeMagnet;
-    private RaycastHit slopeHit;
     [SerializeField]
     bool onSlope;
     float angle;
+    RaycastHit slopeHit;
     bool exitSlope = false;
 
     [Header("Guns")]
@@ -108,6 +108,7 @@ public class PlayerMovement : NetworkBehaviour
         }
         else
             rb.drag = 0f;
+
         //MovementBinds
         if (isGrounded && Input.GetKeyDown(KeyCode.LeftControl))
         {
@@ -136,6 +137,7 @@ public class PlayerMovement : NetworkBehaviour
         {
             walkSpeed = walkingSpeed;
         }
+
         //movement
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
@@ -159,17 +161,20 @@ public class PlayerMovement : NetworkBehaviour
             rb.drag = 0f;
             rb.AddForce(moveDirection * walkSpeed * 10f * airMultiplier, ForceMode.Force);
         }
-
+        
         //check for slope GET THIS RAYCAST TO WORK FOR SLOPE THINGS TO HAPPEN
-        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, transform.localScale.y * .5f + .3f, 7))
+        Physics.Raycast(this.transform.position, Vector3.down, out slopeHit, transform.localScale.y * .5f + .3f, 7);
+        if (slopeHit.collider != null)
         {
-            Debug.DrawRay(transform.position, Vector3.down, Color.red, transform.localScale.y * .5f + .3f);
+            Debug.Log("hit");
+            Debug.DrawRay(this.transform.position, Vector3.down, Color.red, transform.localScale.y * .5f + .3f);
             angle = Vector3.Angle(Vector3.up, slopeHit.normal);
             if (angle < maxSlopeAngle && angle != 0)
                 onSlope = true;
             else
                 onSlope = false;                
         }
+
         //limit speed
         //limit on slopes
         if (onSlope && !exitSlope)
@@ -177,6 +182,7 @@ public class PlayerMovement : NetworkBehaviour
             if (rb.velocity.magnitude > walkSpeed)
                 rb.velocity = rb.velocity.normalized * walkSpeed;
         }
+
         //limit mid air or on ground
         else
         {
