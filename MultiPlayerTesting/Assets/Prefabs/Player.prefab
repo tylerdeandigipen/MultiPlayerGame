@@ -283,8 +283,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraZoffset: 1
   mouseSensitivity: 500
-  walkSpeed: 5
-  runSpeed: 7
+  walkSpeed: 4
+  runSpeed: 6
+  currentVelocity: 0
   groundCheck: {fileID: 9080569663515807091}
   groundMask:
     serializedVersion: 2
@@ -293,11 +294,14 @@ MonoBehaviour:
   groundDistance: 0.4
   airMultiplier: 0.4
   jumpHeight: 15
+  jumpCooldown: 0.4
   crouchScale: 0.5
-  crouchSpeed: 3.5
+  crouchSpeed: 1.5
   maxSlopeAngle: 40
+  slopeCheckLength: 0.8
   slopeMagnet: 20
-  onSlope: 0
+  onSlope: 1
+  slopeDrag: 0.95
   defaultShootPos: {fileID: 4873866244136325135}
 --- !u!114 &2159785271893077339
 MonoBehaviour:
