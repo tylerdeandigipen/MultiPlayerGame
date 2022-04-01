@@ -285,6 +285,7 @@ MonoBehaviour:
   mouseSensitivity: 500
   walkSpeed: 4
   runSpeed: 6
+  sideToSideWieght: 0.5
   currentVelocity: 0
   groundCheck: {fileID: 9080569663515807091}
   groundMask:
@@ -292,8 +293,8 @@ MonoBehaviour:
     m_Bits: 8
   groundDrag: 5
   groundDistance: 0.4
-  airMultiplier: 0.4
-  jumpHeight: 15
+  airMultiplier: 0.2
+  jumpHeight: 12
   jumpCooldown: 0.4
   crouchScale: 0.5
   crouchSpeed: 1.5
@@ -347,9 +348,9 @@ MonoBehaviour:
   IgnoreLayer:
     serializedVersion: 2
     m_Bits: 127
-  maxAmmo: 24
+  maxAmmo: 10
   reloadSpeed: 1
-  damage: 10
+  damage: 24
   range: 100
   fireRate: 0.15
   maxRecoilTime: 4
@@ -362,6 +363,7 @@ MonoBehaviour:
   bloodSplatter: {fileID: 5219561878245848467, guid: 89ede5b012de0844abbec95c9f05a341, type: 3}
   trailRenderer: {fileID: 4223312185455105115, guid: f700fd02a91d68447b6fb51312c81f3e, type: 3}
   bulletSpawnPoint: {fileID: 1981891699070412179}
+  dammageNumber: {fileID: 4641407835340148084, guid: 22ac7a98ede79c2469704b3fdb7a4600, type: 3}
 --- !u!54 &3505155653838561186
 Rigidbody:
   m_ObjectHideFlags: 0

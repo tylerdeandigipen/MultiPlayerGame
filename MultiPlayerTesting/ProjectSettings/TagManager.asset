@@ -38,11 +38,14 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - UIButBetter
   m_SortingLayers:
   - name: Default
     uniqueID: 0
     locked: 0
   - name: UI
     uniqueID: 3281312361
+    locked: 0
+  - name: TopOfEverything
+    uniqueID: 967912809
     locked: 0

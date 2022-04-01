@@ -43,12 +43,15 @@ public class Gun : NetworkBehaviour
     private TrailRenderer trailRenderer;
     [SerializeField]
     private GameObject bulletSpawnPoint;
+    [SerializeField]
+    private GameObject dammageNumber;
     Camera cam;
     PlayerMovement plMove;
     float timePressed;
     int currentAmmo;
     float timer2 = 0f;
     bool isReloading;
+    float currentDammage = 0;
     private void Start()
     {
         currentAmmo = maxAmmo;
@@ -124,7 +127,9 @@ public class Gun : NetworkBehaviour
             {
                 StartCoroutine(SpawnTrail(trail, hit));
                 EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
-                enemyHealthScript.takeDamage(damage);
+                currentDammage = damage;
+                enemyHealthScript.takeDamage(currentDammage);
+                spawnDammageNumber(hit);
             }
             else
             {
@@ -138,6 +143,11 @@ public class Gun : NetworkBehaviour
 
     }
 
+    void spawnDammageNumber(RaycastHit Hit)
+    {
+        GameObject number = Instantiate(dammageNumber, Hit.point, new Quaternion(0, 0, 0, 0));
+        number.GetComponentInChildren<TextMeshProUGUI>().text = $"{currentDammage}";
+    }
     private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, bool didHit = true)
     {
         float time = 0;

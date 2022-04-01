@@ -19,6 +19,8 @@ public class PlayerMovement : NetworkBehaviour
     private float walkSpeed = 10f;
     [SerializeField]
     private float runSpeed = 15f;
+    [SerializeField]
+    private float sideToSideWieght = 1f;
     float walkingSpeed = 0;
     [SerializeField]
     float currentVelocity;
@@ -73,16 +75,12 @@ public class PlayerMovement : NetworkBehaviour
     //Hidden Player Atribuites
     private Transform playerTransform;
     Vector3 velocity;
-    Vector3 spawnPoint; 
+    Vector3 spawnPoint;
     float yRot = 0f;
     float currentRecoilX = 0f;
     float currentRecoilY = 0f;
     Rigidbody rb;
 
-    private void Awake()
-    {
-        //rb = GetComponent<Rigidbody>();
-    }
     void Start()
     {
         scale = transform.localScale.y;
@@ -109,101 +107,15 @@ public class PlayerMovement : NetworkBehaviour
     }
     private void ClientInput()
     {
-        //ground check
-        isGrounded = Physics.CheckSphere(groundCheck.transform.position, groundDistance, groundMask);
-        if (isGrounded)
-        {
-            rb.drag = groundDrag;
-        }
-        else
-            rb.drag = 0f;
-
-        //MovementBinds
-        if (isGrounded && Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            isCrouching = true;
-            transform.localScale = new Vector3(transform.localScale.x, crouchScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-            walkSpeed = crouchSpeed;
-        }
-        if (Input.GetKeyUp(KeyCode.LeftControl) && isCrouching == true)
-        {
-            isCrouching = false;
-            walkSpeed = walkingSpeed;
-            transform.localScale = new Vector3(transform.localScale.x, scale, transform.localScale.z);
-        }
+        checkStates();
+        crouch();
+        movement();
+        limitSpeed();
         //jump
         if (isGrounded && Input.GetKeyDown(KeyCode.Space) && isJumping != true)
         {
             jump();
             Invoke(nameof(resetJump), jumpCooldown);
-        }
-        if (Input.GetKey(KeyCode.LeftShift) && isCrouching != true)
-        {
-            walkSpeed = runSpeed;
-        }
-        else if (isCrouching != true)
-        {
-            walkSpeed = walkingSpeed;
-        }
-
-        //movement
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-        rb.useGravity = !onSlope;
-        Vector3 moveDirection = transform.forward * z + transform.right * x;
-        if (isGrounded && onSlope == true && !exitSlope)
-        {
-            rb.drag = groundDrag;
-            rb.AddForce(Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized * walkSpeed * 20f, ForceMode.Force);
-            rb.velocity = rb.velocity * slopeDrag;
-
-            //if (rb.velocity.y > 0)
-                //rb.AddForce(Vector3.down * 60f, ForceMode.Force);
-        }
-        else if (isGrounded == true)
-        {
-            rb.drag = groundDrag;
-            rb.AddForce(moveDirection * walkSpeed * 20f, ForceMode.Force);
-        }
-        else
-        {
-            rb.drag = 0f;
-            rb.AddForce(moveDirection * walkSpeed * 20f * airMultiplier, ForceMode.Force);
-        }
-
-        //check for slope
-        Debug.DrawRay(new Vector3(this.transform.position.x, this.transform.position.y - (transform.localScale.y / 2), this.transform.position.z), Vector3.down + new Vector3(0,-slopeCheckLength,0), Color.red, 1);
-        Physics.Raycast(new Vector3 (this.transform.position.x, this.transform.position.y - (transform.localScale.y / 2), this.transform.position.z), Vector3.down, out slopeHit, slopeCheckLength);
-        if (slopeHit.collider != null)
-        {
-            angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-            if (angle < maxSlopeAngle && angle != 0)
-                onSlope = true;
-            else
-                onSlope = false;
-        }
-        else
-            onSlope = false;
-        exitSlope = !onSlope;
-        //limit speed
-        //limit on slopes
-        if (onSlope && !exitSlope)
-        {
-            currentVelocity = rb.velocity.magnitude;
-            if (rb.velocity.magnitude > walkSpeed)
-                rb.velocity = rb.velocity.normalized * walkSpeed;
-        }
-        //limit mid air or on ground
-        else
-        {
-            Vector3 currentSpeed = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-            if (currentSpeed.magnitude > walkSpeed)
-            {
-                Vector3 limitedSpeed = currentSpeed.normalized * walkSpeed;
-                rb.velocity = new Vector3(limitedSpeed.x, rb.velocity.y, limitedSpeed.z);
-            }
         }
         //reset player
         if (transform.position.y < -25)
@@ -228,6 +140,106 @@ public class PlayerMovement : NetworkBehaviour
     {
         isJumping = false;
         exitSlope = false;
+    }
+
+    void limitSpeed()
+    {
+        //limit on slopes
+        if (onSlope && !exitSlope)
+        {
+            currentVelocity = rb.velocity.magnitude;
+            if (rb.velocity.magnitude > walkSpeed)
+                rb.velocity = rb.velocity.normalized * walkSpeed;
+        }
+        //limit mid air or on ground
+        else
+        {
+            Vector3 currentSpeed = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+            if (currentSpeed.magnitude > walkSpeed)
+            {
+                Vector3 limitedSpeed = currentSpeed.normalized * walkSpeed;
+                rb.velocity = new Vector3(limitedSpeed.x, rb.velocity.y, limitedSpeed.z);
+            }
+        }
+    }
+
+    void movement()
+    {
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+        rb.useGravity = !onSlope;
+        Vector3 moveDirection = transform.forward * z + ((transform.right * x) * sideToSideWieght);
+        if (isGrounded && onSlope == true && !exitSlope)
+        {
+            rb.drag = groundDrag;
+            rb.AddForce(Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized * walkSpeed * 20f, ForceMode.Force);
+            rb.velocity = rb.velocity * slopeDrag;
+
+            //if (rb.velocity.y > 0)
+            //rb.AddForce(Vector3.down * 60f, ForceMode.Force);
+        }
+        else if (isGrounded)
+        {
+            rb.drag = groundDrag;
+            rb.AddForce(moveDirection * walkSpeed * 20f, ForceMode.Force);
+        }
+        else
+        {
+            rb.drag = 0f;
+            rb.AddForce(moveDirection * walkSpeed * 20f * airMultiplier, ForceMode.Force);
+        }
+        if (Input.GetKey(KeyCode.LeftShift) && !isCrouching)
+        {
+            walkSpeed = runSpeed;
+        }
+        else if (isCrouching != true)
+        {
+            walkSpeed = walkingSpeed;
+        }
+    }
+
+    void crouch()
+    {
+        if (isGrounded && Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            isCrouching = true;
+            transform.localScale = new Vector3(transform.localScale.x, crouchScale, transform.localScale.z);
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+            walkSpeed = crouchSpeed;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl) && isCrouching)
+        {
+            isCrouching = false;
+            walkSpeed = walkingSpeed;
+            transform.localScale = new Vector3(transform.localScale.x, scale, transform.localScale.z);
+        }
+    }
+
+    void checkStates()
+    {
+        isGrounded = Physics.CheckSphere(groundCheck.transform.position, groundDistance, groundMask);
+        if (isGrounded)
+        {
+            rb.drag = groundDrag;
+        }
+        else
+            rb.drag = 0f;
+
+        //check for slope
+        Debug.DrawRay(new Vector3(this.transform.position.x, this.transform.position.y - (transform.localScale.y / 2), this.transform.position.z), Vector3.down + new Vector3(0, -slopeCheckLength, 0), Color.red, 1);
+        Physics.Raycast(new Vector3(this.transform.position.x, this.transform.position.y - (transform.localScale.y / 2), this.transform.position.z), Vector3.down, out slopeHit, slopeCheckLength);
+        if (slopeHit.collider != null)
+        {
+            angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            if (angle < maxSlopeAngle && angle != 0)
+                onSlope = true;
+            else
+                onSlope = false;
+        }
+        else
+            onSlope = false;
+        exitSlope = !onSlope;
     }
     private void cameraControl()
     {
