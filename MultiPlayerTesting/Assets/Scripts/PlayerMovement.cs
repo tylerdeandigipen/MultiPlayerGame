@@ -24,8 +24,10 @@ public class PlayerMovement : NetworkBehaviour
     float walkingSpeed = 0;
     [SerializeField]
     float currentVelocity;
+    public float x;
+    public float z;
 
-    [Header("Ground")]
+[Header("Ground")]
     [SerializeField]
     private GameObject groundCheck;
     [SerializeField]
@@ -102,7 +104,7 @@ public class PlayerMovement : NetworkBehaviour
         {
             ClientInput();
             cameraControl();
-            currentVelocity = rb.velocity.magnitude;
+            currentVelocity = new Vector3 (rb.velocity.x, 0f, rb.velocity.z).magnitude;
         }
     }
     private void ClientInput()
@@ -146,10 +148,10 @@ public class PlayerMovement : NetworkBehaviour
     {
         //limit on slopes
         if (onSlope && !exitSlope)
-        {
-            currentVelocity = rb.velocity.magnitude;
+        {            
             if (rb.velocity.magnitude > walkSpeed)
                 rb.velocity = rb.velocity.normalized * walkSpeed;
+            currentVelocity = rb.velocity.magnitude;
         }
         //limit mid air or on ground
         else
@@ -160,16 +162,26 @@ public class PlayerMovement : NetworkBehaviour
             {
                 Vector3 limitedSpeed = currentSpeed.normalized * walkSpeed;
                 rb.velocity = new Vector3(limitedSpeed.x, rb.velocity.y, limitedSpeed.z);
+                currentVelocity = rb.velocity.magnitude;
             }
         }
     }
 
     void movement()
     {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        x = Input.GetAxis("Horizontal");
+        z = Input.GetAxis("Vertical");
         rb.useGravity = !onSlope;
-        Vector3 moveDirection = transform.forward * z + ((transform.right * x) * sideToSideWieght);
+        Vector3 moveDirection;
+        if (walkSpeed == runSpeed)
+        {
+            if(z > 0)
+                moveDirection = transform.forward * z + ((transform.right * x) * sideToSideWieght);
+            else
+                moveDirection = ((transform.forward * z) * sideToSideWieght) + ((transform.right * x) * sideToSideWieght);
+        }
+        else
+            moveDirection = transform.forward * z + transform.right * x;
         if (isGrounded && onSlope == true && !exitSlope)
         {
             rb.drag = groundDrag;
@@ -184,7 +196,7 @@ public class PlayerMovement : NetworkBehaviour
             rb.drag = groundDrag;
             rb.AddForce(moveDirection * walkSpeed * 20f, ForceMode.Force);
         }
-        else
+        else if (walkSpeed == runSpeed)
         {
             rb.drag = 0f;
             rb.AddForce(moveDirection * walkSpeed * 20f * airMultiplier, ForceMode.Force);
@@ -261,5 +273,4 @@ public class PlayerMovement : NetworkBehaviour
         currentRecoilX = xRecoilDir * Mathf.Abs((Random.value - .5f) / 2) * recoilAmmountX;
         currentRecoilY = yRecoilDir * Mathf.Abs(((Random.value) / 2) * recoilAmmountY * (timePressed >= maxRecoilTime ? recoilAmmountY / 4 : recoilAmmountY));
     }
-
 }

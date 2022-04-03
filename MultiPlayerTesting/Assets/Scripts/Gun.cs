@@ -20,6 +20,8 @@ public class Gun : NetworkBehaviour
     [SerializeField]
     float range = 100f;
     [SerializeField]
+    float dammageFalloffRange = 50;
+    [SerializeField]
     float fireRate = 3f;
     [SerializeField]
     float maxRecoilTime;
@@ -55,7 +57,7 @@ public class Gun : NetworkBehaviour
     private void Start()
     {
         currentAmmo = maxAmmo;
-        plMove = this.GetComponent<PlayerMovement>();
+        plMove = GetComponentInParent<PlayerMovement>();
         cam = FindObjectOfType<Camera>();
         ammoCounter = GameObject.Find("AmmoCounter").GetComponent<TextMeshProUGUI>();
         ammoCounter.gameObject.SetActive(true);
@@ -127,7 +129,10 @@ public class Gun : NetworkBehaviour
             {
                 StartCoroutine(SpawnTrail(trail, hit));
                 EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
-                currentDammage = damage;
+                if (hit.distance < dammageFalloffRange)
+                    currentDammage = damage;
+                else
+                    currentDammage = damage * easeNumber(.5f);
                 enemyHealthScript.takeDamage(currentDammage);
                 spawnDammageNumber(hit);
             }
@@ -148,6 +153,12 @@ public class Gun : NetworkBehaviour
         GameObject number = Instantiate(dammageNumber, Hit.point, new Quaternion(0, 0, 0, 0));
         number.GetComponentInChildren<TextMeshProUGUI>().text = $"{currentDammage}";
     }
+
+    float easeNumber (float x)
+    {
+        return x< 0.5 ? 4 * x* x* x : 1 - Mathf.Pow(-2 * x + 2, 3) / 2;
+    }
+
     private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, bool didHit = true)
     {
         float time = 0;
