@@ -22,6 +22,8 @@ public class Gun : NetworkBehaviour
     [SerializeField]
     float dammageFalloffRange = 50;
     [SerializeField]
+    private float falloffStrength = 2;
+    [SerializeField]
     float fireRate = 3f;
     [SerializeField]
     float maxRecoilTime;
@@ -47,6 +49,7 @@ public class Gun : NetworkBehaviour
     private GameObject bulletSpawnPoint;
     [SerializeField]
     private GameObject dammageNumber;
+
     Camera cam;
     PlayerMovement plMove;
     float timePressed;
@@ -132,15 +135,13 @@ public class Gun : NetworkBehaviour
                 if (hit.distance < dammageFalloffRange)
                     currentDammage = damage;
                 else
-                    currentDammage = damage * easeNumber(.5f);
+                    currentDammage = Mathf.Round(damage * easeNumber(1 - (Mathf.Clamp(((hit.distance - dammageFalloffRange) / 15), 0f ,1f))));
                 enemyHealthScript.takeDamage(currentDammage);
                 spawnDammageNumber(hit);
             }
             else
             {
                 StartCoroutine(SpawnTrail(trail, hit));
-                //Instantiate(hitEffects, hit.point, Quaternion.LookRotation(hit.normal));
-                //Instantiate(bulletDecal, hit.point + new Vector3(hit.normal.x * .01f, hit.normal.y * .01f, hit.normal.z * .01f), Quaternion.LookRotation(-hit.normal));
             }
         }    
         else
@@ -156,7 +157,7 @@ public class Gun : NetworkBehaviour
 
     float easeNumber (float x)
     {
-        return x< 0.5 ? 4 * x* x* x : 1 - Mathf.Pow(-2 * x + 2, 3) / 2;
+        return -(Mathf.Cos(Mathf.PI * x) - 1) / 2;
     }
 
     private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, bool didHit = true)

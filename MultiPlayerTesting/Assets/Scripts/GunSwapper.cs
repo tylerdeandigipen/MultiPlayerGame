@@ -22,6 +22,21 @@ public class GunSwapper : MonoBehaviour
             WeaponNumber = Mathf.Clamp(WeaponNumber, 0, guns.Length - 1);
             UpdateWeapon();
         }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            WeaponNumber = 0;
+            UpdateWeapon();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            WeaponNumber = 1;
+            UpdateWeapon();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            WeaponNumber = 2;
+            UpdateWeapon();
+        }
     }
 
     void UpdateWeapon()

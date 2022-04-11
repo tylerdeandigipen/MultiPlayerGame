@@ -6,6 +6,7 @@ TagManager:
   tags:
   - enemy
   - defualtHitPos
+  - towerCleanup
   layers:
   - Default
   - TransparentFX

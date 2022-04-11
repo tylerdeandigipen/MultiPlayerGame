@@ -116,6 +116,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timetodestroy: 0.5
   sizeOfNumber: 12
+  moveStrength: 3
 --- !u!1 &6362596641448486716
 GameObject:
   m_ObjectHideFlags: 0
