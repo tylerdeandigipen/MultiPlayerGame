@@ -11,7 +11,7 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField]
     private float cameraZoffset = 0f;
     [SerializeField]
-    private float mouseSensitivity = 1000f;
+    public float mouseSensitivity = 1000f;
     Camera camera_;
 
     [Header("Walk Speeds")]
@@ -27,7 +27,7 @@ public class PlayerMovement : NetworkBehaviour
     public float x;
     public float z;
 
-[Header("Ground")]
+    [Header("Ground")]
     [SerializeField]
     private GameObject groundCheck;
     [SerializeField]

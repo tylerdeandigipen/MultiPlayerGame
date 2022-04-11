@@ -18,9 +18,11 @@ public class GunSwapper : MonoBehaviour
     {
         if (Input.GetAxis("Mouse ScrollWheel") != 0)
         {
-            WeaponNumber += Mathf.FloorToInt(Input.GetAxis("Mouse ScrollWheel") * 10);
+            int previousWeaponNumber = WeaponNumber;
+            WeaponNumber += Mathf.FloorToInt(Input.GetAxis("Mouse ScrollWheel") * 10);            
             WeaponNumber = Mathf.Clamp(WeaponNumber, 0, guns.Length - 1);
-            UpdateWeapon();
+            if(previousWeaponNumber != WeaponNumber)
+                UpdateWeapon();
         }
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -45,6 +47,7 @@ public class GunSwapper : MonoBehaviour
         {
             if (i != WeaponNumber)
             {
+                guns[i].gameObject.GetComponent<Gun>().unADS();
                 guns[i].gameObject.SetActive(false);
             }
             else

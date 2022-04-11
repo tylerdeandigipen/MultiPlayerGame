@@ -5,26 +5,35 @@ using Unity.Netcode;
 using TMPro;
 public class Gun : NetworkBehaviour
 {
+    [Header("General Stats")]
     [SerializeField]
     bool isAuto = true;
     [SerializeField]
-    float bulletSpeed = 1;
-    [SerializeField]
     LayerMask IgnoreLayer;
+    [SerializeField]
+    float fireRate = 3f;
+    [SerializeField]
+    float adsZoom = 30;
+
+    [Header("Bullet Stats")]
     [SerializeField]
     int maxAmmo;
     [SerializeField]
     float reloadSpeed = 2f;
     [SerializeField]
+    float bulletSpeed = 1;
+    [SerializeField]
     float damage = 10f;
+
+    [Header("Range / Falloff")]
     [SerializeField]
     float range = 100f;
     [SerializeField]
     float dammageFalloffRange = 50;
     [SerializeField]
     private float falloffStrength = 2;
-    [SerializeField]
-    float fireRate = 3f;
+
+    [Header("Recoil")]
     [SerializeField]
     float maxRecoilTime;
     [SerializeField]
@@ -35,14 +44,14 @@ public class Gun : NetworkBehaviour
     float yRecoilDir = 1;
     [SerializeField]
     float xRecoilDir = -1;
-    float timer = 0f;
+
+    [Header("Effects")]
     [SerializeField]
     ParticleSystem hitEffects;
     [SerializeField]
     GameObject bulletDecal;
     [SerializeField]
     GameObject bloodSplatter;
-    private TextMeshProUGUI ammoCounter;
     [SerializeField]
     private TrailRenderer trailRenderer;
     [SerializeField]
@@ -50,6 +59,11 @@ public class Gun : NetworkBehaviour
     [SerializeField]
     private GameObject dammageNumber;
 
+    float timer = 0f;
+    float oldFOV;
+    float oldSens;
+    bool isADSing = false;
+    private TextMeshProUGUI ammoCounter;
     Camera cam;
     PlayerMovement plMove;
     float timePressed;
@@ -64,12 +78,22 @@ public class Gun : NetworkBehaviour
         cam = FindObjectOfType<Camera>();
         ammoCounter = GameObject.Find("AmmoCounter").GetComponent<TextMeshProUGUI>();
         ammoCounter.gameObject.SetActive(true);
+        oldFOV = cam.fieldOfView;
+        oldSens = plMove.mouseSensitivity;
     }
     void Update()
     {
         if (IsClient && IsOwner)
         {
             ammoCounter.text = $"{currentAmmo}/{maxAmmo}";
+            if (Input.GetKeyDown(KeyCode.Mouse1))
+            {
+                ADS();
+            }
+            if (Input.GetKeyUp(KeyCode.Mouse1) && isADSing)
+            {
+                unADS();           
+            }
             if (isAuto == true)
             {
                 if (Input.GetKey(KeyCode.Mouse0) && fireRate <= timer && currentAmmo != 0 && isReloading == false)
@@ -159,7 +183,19 @@ public class Gun : NetworkBehaviour
     {
         return -(Mathf.Cos(Mathf.PI * x) - 1) / 2;
     }
-
+    public void ADS()
+    {
+        isADSing = true;
+        oldSens = plMove.mouseSensitivity;
+        oldFOV = cam.fieldOfView;
+        cam.fieldOfView = adsZoom;
+    }
+    public void unADS()
+    {
+        isADSing = false;
+        plMove.mouseSensitivity = oldSens;
+        cam.fieldOfView = oldFOV;
+    }
     private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, bool didHit = true)
     {
         float time = 0;
