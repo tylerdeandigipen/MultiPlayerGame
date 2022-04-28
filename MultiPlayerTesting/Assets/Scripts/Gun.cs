@@ -65,7 +65,7 @@ public class Gun : NetworkBehaviour
     bool isADSing = false;
     private TextMeshProUGUI ammoCounter;
     Camera cam;
-    PlayerMovement plMove;
+    RBPlayerMovement plMove;
     float timePressed;
     int currentAmmo;
     float timer2 = 0f;
@@ -74,12 +74,12 @@ public class Gun : NetworkBehaviour
     private void Start()
     {
         currentAmmo = maxAmmo;
-        plMove = GetComponentInParent<PlayerMovement>();
+        plMove = GetComponentInParent<RBPlayerMovement>();
         cam = FindObjectOfType<Camera>();
         ammoCounter = GameObject.Find("AmmoCounter").GetComponent<TextMeshProUGUI>();
         ammoCounter.gameObject.SetActive(true);
         oldFOV = cam.fieldOfView;
-        oldSens = plMove.mouseSensitivity;
+        oldSens = plMove.sensitivity;
     }
     void Update()
     {
@@ -186,14 +186,14 @@ public class Gun : NetworkBehaviour
     public void ADS()
     {
         isADSing = true;
-        oldSens = plMove.mouseSensitivity;
+        oldSens = plMove.sensitivity;
         oldFOV = cam.fieldOfView;
         cam.fieldOfView = adsZoom;
     }
     public void unADS()
     {
         isADSing = false;
-        plMove.mouseSensitivity = oldSens;
+        plMove.sensitivity = oldSens;
         cam.fieldOfView = oldFOV;
     }
     private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, bool didHit = true)

@@ -81,7 +81,7 @@ GameObject:
   - component: {fileID: 3505155653838561186}
   - component: {fileID: 6417493717562558844}
   - component: {fileID: 2159785271893077339}
-  - component: {fileID: 3715243105841349112}
+  - component: {fileID: 5167149929345647332}
   - component: {fileID: 1998002684687789}
   m_Layer: 7
   m_Name: Player
@@ -230,8 +230,7 @@ MonoBehaviour:
   ScaleThreshold: 0.01
   InLocalSpace: 0
   Interpolate: 1
-  CanCommitToTransform: 0
---- !u!114 &3715243105841349112
+--- !u!114 &5167149929345647332
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -240,32 +239,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 6525578032385936910}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d6063ac57dda9149a19ca0063c70c42, type: 3}
+  m_Script: {fileID: 11500000, guid: 1a3a3261dfbc56b49844122d9d36e346, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraZoffset: 1
-  mouseSensitivity: 500
-  walkSpeed: 1.5
-  runSpeed: 2.5
-  sideToSideWieght: 0.4
-  currentVelocity: 0
-  groundCheck: {fileID: 9080569663515807091}
-  groundMask:
+  playerCam: {fileID: 0}
+  orientation: {fileID: 2293636113578476375}
+  sensitivity: 1000
+  moveSpeed: 4500
+  runSpeed: 18
+  walkSpeed: 15
+  grounded: 0
+  whatIsGround:
     serializedVersion: 2
     m_Bits: 8
-  groundDrag: 5
-  groundDistance: 0.4
-  airMultiplier: 0.2
-  jumpHeight: 12
-  jumpCooldown: 0.4
-  crouchScale: 0.5
-  crouchSpeed: 1.5
-  maxSlopeAngle: 40
-  slopeCheckLength: 0.8
-  slopeMagnet: 20
-  onSlope: 1
-  slopeDrag: 0.95
-  defaultShootPos: {fileID: 4873866244136325135}
+  counterMovement: 0.2
+  maxSlopeAngle: 35
+  slideForce: 600
+  slideCounterMovement: 0.2
+  jumpForce: 275
 --- !u!114 &1998002684687789
 MonoBehaviour:
   m_ObjectHideFlags: 0
