@@ -42,6 +42,11 @@ public class RBPlayerMovement : NetworkBehaviour
     private bool readyToJump = true;
     private float jumpCooldown = 0.25f;
     public float jumpForce = 275f;
+    public float doubleJumpForce = 275f;
+    public float glideDuration = 3;
+    public float doubleJumpMass = 1f;
+    private bool canDoubleJump = true;
+    public int doubleJumps = 2;
 
     //Input
     float x, y;
@@ -54,6 +59,8 @@ public class RBPlayerMovement : NetworkBehaviour
 
     private float maxSpeed;
     private bool isRunning;
+    private float mass;
+    private int jumpsLeft;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();        
@@ -63,6 +70,7 @@ public class RBPlayerMovement : NetworkBehaviour
     {
         if (IsOwner)
         {
+            mass = rb.mass;
             spawnPoint = transform.position;
             playerCam = FindObjectOfType<Camera>().transform;
             transform.position = new Vector3(0, 0, 0);
@@ -93,16 +101,24 @@ public class RBPlayerMovement : NetworkBehaviour
     private void MyInput()
     {
         x = Input.GetAxisRaw("Horizontal");
-        y = Input.GetAxisRaw("Vertical");
-        jumping = Input.GetButton("Jump");
+        y = Input.GetAxisRaw("Vertical");   
         crouching = Input.GetKey(KeyCode.LeftControl);
-
+        if (grounded)
+        {
+            jumpsLeft = doubleJumps;
+            ResetJump();
+            StopGlide();
+        }
         //Crouching
         if (Input.GetKeyDown(KeyCode.LeftControl))
             StartCrouch();
         if (Input.GetKeyUp(KeyCode.LeftControl))
             StopCrouch();
-
+        //Jumps
+        if (Input.GetKeyDown(KeyCode.Space) && readyToJump)
+            Jump();
+        if (Input.GetKeyDown(KeyCode.Space) && !grounded)
+            DoubleJump();
         if (Input.GetKey(KeyCode.LeftShift))
         {
             maxSpeed = runSpeed;
@@ -147,8 +163,7 @@ public class RBPlayerMovement : NetworkBehaviour
         //Counteract sliding and sloppy movement
         CounterMovement(x, y, mag);
 
-        //If holding jump && ready to jump, then jump
-        if (readyToJump && jumping) Jump();
+       
 
         //Set max speed
         float maxSpeed = this.maxSpeed;
@@ -170,10 +185,11 @@ public class RBPlayerMovement : NetworkBehaviour
         float multiplier = 1f, multiplierV = 1f;
 
         // Movement in air
-        if (!grounded)
+        bool doubleJumping = false;
+        if (!grounded && !doubleJumping)
         {
-            multiplier = 0.5f;
-            multiplierV = 0.5f;
+            multiplier = 0.2f;
+            multiplierV = 0.6f * .5f;
         }
 
         // Movement while sliding
@@ -182,13 +198,13 @@ public class RBPlayerMovement : NetworkBehaviour
         //Apply forces to move player
         if (isRunning == false)
         {
-            rb.AddForce(orientation.transform.forward * y * moveSpeed * Time.deltaTime * multiplier * multiplierV);
-            rb.AddForce(orientation.transform.right * x * moveSpeed * Time.deltaTime * multiplier);
+            rb.AddForce(orientation.transform.forward * y * moveSpeed * Time.deltaTime * multiplierV);
+            rb.AddForce(orientation.transform.right * x * (moveSpeed * multiplier) * Time.deltaTime * multiplier);
         }
         else
         {
-            rb.AddForce(orientation.transform.forward * y * moveSpeed * Time.deltaTime * multiplier * multiplierV);
-            rb.AddForce(orientation.transform.right * x * moveSpeed * Time.deltaTime * multiplier * .6f);
+            rb.AddForce(orientation.transform.forward * y * moveSpeed * Time.deltaTime * multiplierV);
+            rb.AddForce(orientation.transform.right * x * (moveSpeed * .6f) * Time.deltaTime * multiplier);
         }
 
         if (transform.position.y < -10)
@@ -206,6 +222,24 @@ public class RBPlayerMovement : NetworkBehaviour
             //Add jump forces
             rb.AddForce(Vector2.up * jumpForce * 1.5f);
             rb.AddForce(normalVector * jumpForce * 0.5f);
+            Vector3 vel = rb.velocity;
+            if (rb.velocity.y < 0.5f)
+                rb.velocity = new Vector3(vel.x, 0, vel.z);
+            if (rb.velocity.y > 0)
+                rb.velocity = new Vector3(vel.x, vel.y / 2, vel.z);
+            Invoke(nameof(ResetJump), jumpCooldown);
+        }
+    }
+    private void DoubleJump()
+    {
+        if (!grounded && jumpsLeft > 0)
+        {
+            rb.mass = doubleJumpMass;
+            readyToJump = false;
+            jumpsLeft -= 1;
+
+            rb.AddForce(Vector2.up * doubleJumpForce * 1.5f);
+            rb.AddForce(normalVector * doubleJumpForce * 0.5f);
 
             //If jumping while falling, reset y velocity.
             Vector3 vel = rb.velocity;
@@ -214,13 +248,18 @@ public class RBPlayerMovement : NetworkBehaviour
             else if (rb.velocity.y > 0)
                 rb.velocity = new Vector3(vel.x, vel.y / 2, vel.z);
 
-            Invoke(nameof(ResetJump), jumpCooldown);
+            Invoke(nameof(StopGlide), glideDuration);
         }
     }
 
     private void ResetJump()
     {
         readyToJump = true;
+    }
+    private void StopGlide()
+    {
+        this.rb.mass = mass;
+        ResetJump();
     }
 
     private float desiredX;

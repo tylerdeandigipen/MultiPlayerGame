@@ -246,8 +246,8 @@ MonoBehaviour:
   orientation: {fileID: 2293636113578476375}
   sensitivity: 1000
   moveSpeed: 4500
-  runSpeed: 18
-  walkSpeed: 15
+  runSpeed: 14
+  walkSpeed: 10
   grounded: 0
   whatIsGround:
     serializedVersion: 2
@@ -257,6 +257,10 @@ MonoBehaviour:
   slideForce: 600
   slideCounterMovement: 0.2
   jumpForce: 275
+  doubleJumpForce: 100
+  glideDuration: 3
+  doubleJumpMass: 0.4
+  doubleJumps: 2
 --- !u!114 &1998002684687789
 MonoBehaviour:
   m_ObjectHideFlags: 0
