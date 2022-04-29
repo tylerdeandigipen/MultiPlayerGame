@@ -20,7 +20,6 @@ public class KillZone : MonoBehaviour
     {
         if (collision.collider.tag == "Player")
         {
-            Debug.Log("kill");
             collision.gameObject.GetComponent<RBPlayerMovement>().Kill();
         }
     }
