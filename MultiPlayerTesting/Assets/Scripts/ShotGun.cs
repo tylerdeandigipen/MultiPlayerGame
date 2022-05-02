@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
-public class Gun : MonoBehaviour
+public class ShotGun : MonoBehaviour
 {
     [Header("General Stats")]
     [SerializeField]
@@ -18,6 +18,10 @@ public class Gun : MonoBehaviour
     [Header("Bullet Stats")]
     [SerializeField]
     int maxAmmo;
+    [SerializeField]
+    int ammountOfPellets;
+    [SerializeField]
+    float maxBulletSpread;
     [SerializeField]
     float reloadSpeed = 2f;
     [SerializeField]
@@ -59,6 +63,7 @@ public class Gun : MonoBehaviour
     [SerializeField]
     private GameObject dammageNumber;
 
+
     float timer = 0f;
     float oldFOV;
     float oldSens;
@@ -92,7 +97,7 @@ public class Gun : MonoBehaviour
             }
             if (Input.GetKeyUp(KeyCode.Mouse1) && isADSing)
             {
-                unADS();           
+                unADS();
             }
             if (isAuto == true)
             {
@@ -140,36 +145,42 @@ public class Gun : MonoBehaviour
                     timer2 += Time.deltaTime;
             }
         }
-            
+
     }
 
     void Shoot()
     {
         currentAmmo -= 1;
-        RaycastHit hit;
-        TrailRenderer trail = Instantiate(trailRenderer, bulletSpawnPoint.transform.position, Quaternion.identity);
-        Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, range, IgnoreLayer);
-        plMove.RecoilMath(recoilX, recoilY, timePressed, maxRecoilTime, xRecoilDir, yRecoilDir);        
-        if (hit.collider != null)
+        for (int i = 0; i < ammountOfPellets; i++)
         {
-            if (hit.collider.gameObject.layer == 6)
+            RaycastHit hit;
+            TrailRenderer trail = Instantiate(trailRenderer, bulletSpawnPoint.transform.position, Quaternion.identity);
+            Vector3 temp = new Vector3(cam.transform.forward.x + Random.Range(-maxBulletSpread, maxBulletSpread), cam.transform.forward.y + Random.Range(-maxBulletSpread, maxBulletSpread), cam.transform.forward.z + Random.Range(-maxBulletSpread, maxBulletSpread));
+            Debug.Log("Forward: " + cam.transform.forward);
+            Debug.Log("Temp: " + temp);
+            Physics.Raycast(cam.transform.position, temp, out hit, range, IgnoreLayer);
+            plMove.RecoilMath(recoilX, recoilY, timePressed, maxRecoilTime, xRecoilDir, yRecoilDir);
+            if (hit.collider != null)
             {
-                StartCoroutine(SpawnTrail(trail, hit));
-                EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
-                if (hit.distance < dammageFalloffRange)
-                    currentDammage = damage;
+                if (hit.collider.gameObject.layer == 6)
+                {
+                    StartCoroutine(SpawnTrail(trail, hit, new Vector3(0, 0, 0)));
+                    EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
+                    if (hit.distance < dammageFalloffRange)
+                        currentDammage = damage;
+                    else
+                        currentDammage = Mathf.Round(damage * easeNumber(1 - (Mathf.Clamp(((hit.distance - dammageFalloffRange) / 15), 0f, 1f))));
+                    enemyHealthScript.takeDamage(currentDammage);
+                    spawnDammageNumber(hit);
+                }
                 else
-                    currentDammage = Mathf.Round(damage * easeNumber(1 - (Mathf.Clamp(((hit.distance - dammageFalloffRange) / 15), 0f ,1f))));
-                enemyHealthScript.takeDamage(currentDammage);
-                spawnDammageNumber(hit);
+                {
+                    StartCoroutine(SpawnTrail(trail, hit, new Vector3 (0,0,0)));
+                }
             }
             else
-            {
-                StartCoroutine(SpawnTrail(trail, hit));
-            }
-        }    
-        else
-            StartCoroutine(SpawnTrail(trail, hit));
+                StartCoroutine(SpawnTrail(trail, hit, temp));
+        }
 
     }
 
@@ -182,7 +193,7 @@ public class Gun : MonoBehaviour
         }
     }
 
-    float easeNumber (float x)
+    float easeNumber(float x)
     {
         return -(Mathf.Cos(Mathf.PI * x) - 1) / 2;
     }
@@ -199,7 +210,7 @@ public class Gun : MonoBehaviour
         plMove.sensitivity = oldSens;
         cam.fieldOfView = oldFOV;
     }
-    private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, bool didHit = true)
+    private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, Vector3 direction)
     {
         float time = 0;
         Vector3 startPosition = trail.transform.position;
@@ -218,7 +229,7 @@ public class Gun : MonoBehaviour
             }
             else
             {
-                trail.transform.position = Vector3.Lerp(startPosition, defaultPos, time);
+                trail.transform.position = Vector3.Lerp(startPosition, startPosition + (trail.transform.forward * 100), time);
                 time += Time.deltaTime / trail.time;
             }
             yield return null;

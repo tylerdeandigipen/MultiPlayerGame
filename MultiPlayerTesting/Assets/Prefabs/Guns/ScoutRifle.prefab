@@ -97,16 +97,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isAuto: 0
-  bulletSpeed: 1.3
   IgnoreLayer:
     serializedVersion: 2
     m_Bits: 127
+  fireRate: 0.2
+  adsZoom: 30
   maxAmmo: 18
   reloadSpeed: 1
+  bulletSpeed: 1.3
   damage: 12
   range: 100
   dammageFalloffRange: 30
-  fireRate: 0.2
+  falloffStrength: 2
   maxRecoilTime: 3
   recoilY: 1.4
   recoilX: 0.5
