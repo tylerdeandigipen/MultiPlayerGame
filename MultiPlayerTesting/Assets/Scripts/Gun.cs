@@ -154,7 +154,7 @@ public class Gun : MonoBehaviour
         {
             if (hit.collider.gameObject.layer == 6)
             {
-                StartCoroutine(SpawnTrail(trail, hit));
+                StartCoroutine(SpawnTrail(trail, hit, new Vector3(0, 0, 0)));
                 EnemyHealth enemyHealthScript = hit.collider.gameObject.GetComponent<EnemyHealth>();
                 if (hit.distance < dammageFalloffRange)
                     currentDammage = damage;
@@ -165,11 +165,11 @@ public class Gun : MonoBehaviour
             }
             else
             {
-                StartCoroutine(SpawnTrail(trail, hit));
+                StartCoroutine(SpawnTrail(trail, hit, new Vector3(0, 0, 0)));
             }
         }    
         else
-            StartCoroutine(SpawnTrail(trail, hit));
+            StartCoroutine(SpawnTrail(trail, hit, cam.transform.forward));
 
     }
 
@@ -199,7 +199,7 @@ public class Gun : MonoBehaviour
         plMove.sensitivity = oldSens;
         cam.fieldOfView = oldFOV;
     }
-    private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, bool didHit = true)
+    private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit Hit, Vector3 direction)
     {
         float time = 0;
         Vector3 startPosition = trail.transform.position;
@@ -218,7 +218,7 @@ public class Gun : MonoBehaviour
             }
             else
             {
-                trail.transform.position = Vector3.Lerp(startPosition, defaultPos, time);
+                trail.transform.position = Vector3.Lerp(startPosition, startPosition + direction * 100, time);
                 time += Time.deltaTime / trail.time;
             }
             yield return null;
