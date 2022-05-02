@@ -156,8 +156,6 @@ public class ShotGun : MonoBehaviour
             RaycastHit hit;
             TrailRenderer trail = Instantiate(trailRenderer, bulletSpawnPoint.transform.position, Quaternion.identity);
             Vector3 temp = new Vector3(cam.transform.forward.x + Random.Range(-maxBulletSpread, maxBulletSpread), cam.transform.forward.y + Random.Range(-maxBulletSpread, maxBulletSpread), cam.transform.forward.z + Random.Range(-maxBulletSpread, maxBulletSpread));
-            Debug.Log("Forward: " + cam.transform.forward);
-            Debug.Log("Temp: " + temp);
             Physics.Raycast(cam.transform.position, temp, out hit, range, IgnoreLayer);
             plMove.RecoilMath(recoilX, recoilY, timePressed, maxRecoilTime, xRecoilDir, yRecoilDir);
             if (hit.collider != null)
@@ -229,7 +227,7 @@ public class ShotGun : MonoBehaviour
             }
             else
             {
-                trail.transform.position = Vector3.Lerp(startPosition, startPosition + (trail.transform.forward * 100), time);
+                trail.transform.position = Vector3.Lerp(startPosition, startPosition + direction * 100, time);
                 time += Time.deltaTime / trail.time;
             }
             yield return null;
