@@ -14,6 +14,7 @@ public class Gun : MonoBehaviour
     float fireRate = 3f;
     [SerializeField]
     float adsZoom = 30;
+    public float adsSensitivity;
 
     [Header("Bullet Stats")]
     [SerializeField]
@@ -190,6 +191,7 @@ public class Gun : MonoBehaviour
     {
         isADSing = true;
         oldSens = plMove.sensitivity;
+        plMove.sensitivity = adsSensitivity;
         oldFOV = cam.fieldOfView;
         cam.fieldOfView = adsZoom;
     }

@@ -108,13 +108,13 @@ MonoBehaviour:
   reloadSpeed: 3
   bulletSpeed: 1
   damage: 6
-  range: 100
-  dammageFalloffRange: 25
+  range: 20
+  dammageFalloffRange: 18
   falloffStrength: 2
-  maxRecoilTime: 7
-  recoilY: 1.5
-  recoilX: 0.6
-  yRecoilDir: -1
+  maxRecoilTime: 0
+  recoilY: 3
+  recoilX: 1.4
+  yRecoilDir: -2
   xRecoilDir: -1
   hitEffects: {fileID: 7051963422759471796, guid: a7e4db11f4056ca4f98a674c9ef939d0, type: 3}
   bulletDecal: {fileID: 7950715922474084321, guid: ce02b9acddf3f9749a2f8e66d9aa1689, type: 3}

@@ -20,6 +20,7 @@ public class RBPlayerMovement : NetworkBehaviour
     private float xRotation;
     public float sensitivity = 1000f;
     private float sensMultiplier = 1f;
+    public float recoilResetSpeed = 1f;
 
     //Movement
     public float moveSpeed = 4500;
@@ -56,11 +57,13 @@ public class RBPlayerMovement : NetworkBehaviour
     private Vector3 normalVector = Vector3.up;
     private Vector3 wallNormalVector;
 
-
+    Transform oldCamPos;
     private float maxSpeed;
     private bool isRunning;
     private float mass;
     private int jumpsLeft;
+    float timer;
+    bool resetCursor = false;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();        
@@ -223,10 +226,10 @@ public class RBPlayerMovement : NetworkBehaviour
             rb.AddForce(Vector2.up * jumpForce * 1.5f);
             rb.AddForce(normalVector * jumpForce * 0.5f);
             Vector3 vel = rb.velocity;
-            if (rb.velocity.y < 0.5f)
+            /*if (rb.velocity.y < 0.5f)
                 rb.velocity = new Vector3(vel.x, 0, vel.z);
             if (rb.velocity.y > 0)
-                rb.velocity = new Vector3(vel.x, vel.y / 2, vel.z);
+                rb.velocity = new Vector3(vel.x, vel.y / 2, vel.z);*/
             Invoke(nameof(ResetJump), jumpCooldown);
         }
     }
@@ -270,7 +273,7 @@ public class RBPlayerMovement : NetworkBehaviour
     {
         float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
-
+     
         yRot -= mouseY;
         yRot += currentRecoilY;
         yRot = Mathf.Clamp(yRot, -90, 90);
@@ -377,13 +380,24 @@ public class RBPlayerMovement : NetworkBehaviour
     }
     public void RecoilMath(float recoilAmmountX, float recoilAmmountY, float timePressed, float maxRecoilTime, float xRecoilDir, float yRecoilDir)
     {
+        oldCamPos = playerCam.transform;
         currentRecoilX = xRecoilDir * Mathf.Abs((Random.value - .5f) / 2) * recoilAmmountX;
         currentRecoilY = yRecoilDir * Mathf.Abs(((Random.value) / 2) * recoilAmmountY * (timePressed >= maxRecoilTime ? recoilAmmountY / 4 : recoilAmmountY));
     }
-
+   
     public void Kill()
     {
         Debug.Log("die");
         transform.position = spawnPoint;
+    }
+    private IEnumerator resetRecoil()
+    {
+        while (timer * recoilResetSpeed <= 1)
+        {
+            timer += Time.deltaTime;
+            transform.eulerAngles = Vector3.Lerp(new Vector3(0, playerCam.transform.rotation.eulerAngles.y, 0), new Vector3(0, oldCamPos.transform.rotation.eulerAngles.y, 0), timer * recoilResetSpeed);
+            playerCam.transform.eulerAngles = Vector3.Lerp(new Vector3(playerCam.transform.rotation.eulerAngles.x, 0, 0), new Vector3(oldCamPos.transform.rotation.eulerAngles.x, 0, 0), timer * recoilResetSpeed);
+        }
+        yield return null;
     }
 }
