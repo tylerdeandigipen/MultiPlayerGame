@@ -234,7 +234,7 @@ public class ShotGun : MonoBehaviour
         }
         if (Hit.collider == null)
         {
-            Instantiate(hitEffects, defaultPos, new Quaternion(0, 0, 0, 0));
+           
         }
         else if (Hit.collider.gameObject.layer == 6)
         {

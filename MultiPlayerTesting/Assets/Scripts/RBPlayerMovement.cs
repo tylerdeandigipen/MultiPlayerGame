@@ -118,11 +118,11 @@ public class RBPlayerMovement : NetworkBehaviour
         if (Input.GetKeyUp(KeyCode.LeftControl))
             StopCrouch();
         //Jumps
-        if (Input.GetKeyDown(KeyCode.Space) && readyToJump)
+        if (Input.GetKeyDown(KeyCode.Space) && readyToJump && !crouching)
             Jump();
         if (Input.GetKeyDown(KeyCode.Space) && !grounded)
             DoubleJump();
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && !crouching)
         {
             maxSpeed = runSpeed;
             isRunning = true;
@@ -196,7 +196,7 @@ public class RBPlayerMovement : NetworkBehaviour
         }
 
         // Movement while sliding
-        if (grounded && crouching) multiplierV = 0f;
+        //if (grounded && crouching) multiplierV = 0f;
 
         //Apply forces to move player
         if (isRunning == false)

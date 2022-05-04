@@ -47,8 +47,18 @@ public class GunSwapper : MonoBehaviour
         {
             if (i != WeaponNumber)
             {
-                guns[i].gameObject.GetComponent<Gun>().unADS();
-                guns[i].gameObject.SetActive(false);
+
+                Gun gunscript = guns[i].gameObject.GetComponent<Gun>();
+                if (gunscript != null)
+                {
+                    gunscript.unADS();
+                    guns[i].gameObject.SetActive(false);
+                }
+                else
+                {
+                    guns[i].gameObject.GetComponent<ShotGun>().unADS();
+                    guns[i].gameObject.SetActive(false);
+                }
             }
             else
                 guns[i].gameObject.SetActive(true);
