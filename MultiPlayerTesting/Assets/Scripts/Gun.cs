@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
-public class Gun : MonoBehaviour
+public class Gun : NetworkBehaviour
 {
     [Header("General Stats")]
     [SerializeField]
@@ -84,7 +84,7 @@ public class Gun : MonoBehaviour
     }
     void Update()
     {
-        if (NetworkManager.Singleton.IsClient)
+        if (IsOwner)
         {
             ammoCounter.text = $"{currentAmmo}/{maxAmmo}";
             if (Input.GetKeyDown(KeyCode.Mouse1))

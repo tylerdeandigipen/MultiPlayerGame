@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class GunSwapper : MonoBehaviour
+public class GunSwapper : NetworkBehaviour
 {
     [SerializeField]
     public GameObject[] guns;
@@ -16,28 +17,31 @@ public class GunSwapper : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        if (IsOwner)
         {
-            int previousWeaponNumber = WeaponNumber;
-            WeaponNumber += Mathf.FloorToInt(Input.GetAxis("Mouse ScrollWheel") * 10);            
-            WeaponNumber = Mathf.Clamp(WeaponNumber, 0, guns.Length - 1);
-            if(previousWeaponNumber != WeaponNumber)
+            if (Input.GetAxis("Mouse ScrollWheel") != 0)
+            {
+                int previousWeaponNumber = WeaponNumber;
+                WeaponNumber += Mathf.FloorToInt(Input.GetAxis("Mouse ScrollWheel") * 10);
+                WeaponNumber = Mathf.Clamp(WeaponNumber, 0, guns.Length - 1);
+                if (previousWeaponNumber != WeaponNumber)
+                    UpdateWeapon();
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                WeaponNumber = 0;
                 UpdateWeapon();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            WeaponNumber = 0;
-            UpdateWeapon();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            WeaponNumber = 1;
-            UpdateWeapon();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            WeaponNumber = 2;
-            UpdateWeapon();
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                WeaponNumber = 1;
+                UpdateWeapon();
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                WeaponNumber = 2;
+                UpdateWeapon();
+            }
         }
     }
 

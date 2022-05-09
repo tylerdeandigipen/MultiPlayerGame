@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
-public class ProjectileWeapon : MonoBehaviour
+public class ProjectileWeapon : NetworkBehaviour
 {
     [Header("General Stats")]
     [SerializeField]
@@ -68,7 +68,7 @@ public class ProjectileWeapon : MonoBehaviour
     }
     void Update()
     {
-        if (NetworkManager.Singleton.IsClient)
+        if (IsOwner)
         {
             ammoCounter.text = $"{currentAmmo}/{maxAmmo}";
             if (Input.GetKeyDown(KeyCode.Mouse1))

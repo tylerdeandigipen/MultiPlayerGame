@@ -6,7 +6,10 @@ using Unity.Netcode;
 [RequireComponent(typeof(NetworkObject))]
 public class EnemyHealth : NetworkBehaviour
 {
-    public NetworkVariable<float> health = new NetworkVariable<float>();
+    public NetworkVariable<float> health = new NetworkVariable<float>(
+        default,
+        NetworkVariableBase.DefaultReadPerm, // Everyone
+        NetworkVariableWritePermission.Server);
     public float Maxhealth = 10;
     [SerializeField]
     public float currentHealth;

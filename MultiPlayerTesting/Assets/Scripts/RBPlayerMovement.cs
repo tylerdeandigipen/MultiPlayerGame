@@ -89,13 +89,19 @@ public class RBPlayerMovement : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        Movement();
+        if (IsOwner)
+        {
+            Movement();
+        }
     }
 
     private void Update()
     {
-        MyInput();
-        Look();
+        if (IsOwner)
+        {
+            MyInput();
+            Look();
+        }
     }
 
     /// <summary>
